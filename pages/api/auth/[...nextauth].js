@@ -1,21 +1,21 @@
-import NextAuth, {getServerSession} from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
-import {MongoDBAdapter} from "@next-auth/mongodb-adapter";
+import NextAuth, { getServerSession } from 'next-auth';
+import GoogleProvider from 'next-auth/providers/google';
+import { MongoDBAdapter } from "@next-auth/mongodb-adapter";
 import clientPromise from "@/lib/mongodb";
 
 const adminEmails = ['tharuuxofc@gmail.com', 'info@neo.lk'];
 
 export const authOptions = {
-  
+  secret: process.env.SECRET,  // Ensure this line is correctly fetching the secret from environment variables
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET
+      clientSecret: process.env.GOOGLE_SECRET,
     }),
   ],
   adapter: MongoDBAdapter(clientPromise),
   callbacks: {
-    session: ({session,token,user}) => {
+    session: ({ session, token, user }) => {
       if (adminEmails.includes(session?.user?.email)) {
         return session;
       } else {
@@ -27,8 +27,8 @@ export const authOptions = {
 
 export default NextAuth(authOptions);
 
-export async function isAdminRequest(req,res) {
-  const session = await getServerSession(req,res,authOptions);
+export async function isAdminRequest(req, res) {
+  const session = await getServerSession(req, res, authOptions);
   if (!adminEmails.includes(session?.user?.email)) {
     res.status(401);
     res.end();
