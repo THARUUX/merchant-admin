@@ -22,6 +22,22 @@ function Categories({ swal }) {
 
   async function saveCategory(ev) {
     ev.preventDefault();
+
+    let valid = true;
+    if (properties) {
+      for (let p of properties) {
+        if (p.name.length === 0) {
+          alert('Please insert a value for property name or remove it.');
+          valid = false;
+          break;
+        } else if (p.value.length === 0) {
+          alert('Please insert a value for property value or remove it.');
+          valid = false;
+          break;
+        }
+      }
+    }
+    
     let data = {
       name,
       parentCategory: parentCategory || null,
@@ -33,42 +49,46 @@ function Categories({ swal }) {
     if (parentCategory) {
       data.parentCategory = parentCategory;
     }
-    if (editedCategory) {
-      data._id = editedCategory._id;
-      await axios.put('/api/categories', data);
-      setEditedCategory(null);
-      swal
-        .fire({
-          title: 'Saved !',
-          text: `The category was successfully saved.`,
-          showCancelButton: false,
-          cancelButtonText: 'Cancel',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#86ff0c',
-          reverseButtons: true,
-        })
-        .then({
-        });
-    } else {
-      await axios.post('/api/categories', data);
-      swal
-        .fire({
-          title: 'Added !',
-          text: `The category was successfully added.`,
-          showCancelButton: false,
-          cancelButtonText: 'Cancel',
-          confirmButtonText: 'OK',
-          confirmButtonColor: '#86ff0c',
-          reverseButtons: true,
-        })
-        .then({
-        });
+
+    if(valid){
+      if (editedCategory) {
+        data._id = editedCategory._id;
+        await axios.put('/api/categories', data);
+        setEditedCategory(null);
+        swal
+          .fire({
+            title: 'Saved !',
+            text: `The category was successfully saved.`,
+            showCancelButton: false,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#86ff0c',
+            reverseButtons: true,
+          })
+          .then({
+          });
+      } else {
+        await axios.post('/api/categories', data);
+        swal
+          .fire({
+            title: 'Added !',
+            text: `The category was successfully added.`,
+            showCancelButton: false,
+            cancelButtonText: 'Cancel',
+            confirmButtonText: 'OK',
+            confirmButtonColor: '#86ff0c',
+            reverseButtons: true,
+          })
+          .then({
+          });
+      }
+      setName('');
+      setParentCategory('');
+      setProperties([]);
+      fetchCategories();
     }
-    setName('');
-    setParentCategory('');
-    setProperties([]);
-    fetchCategories();
-  }
+    }
+    
   
 
   function editCategory(category) {
